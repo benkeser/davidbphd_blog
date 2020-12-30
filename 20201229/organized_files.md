@@ -645,5 +645,3 @@ organization. Leave a comment below or give me a shout on Twitter
 
 Wishing all of you the best of luck in all your future reproducible
 endeavors.
-
-#### Footnotes
