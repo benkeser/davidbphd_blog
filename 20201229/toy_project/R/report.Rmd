@@ -1,0 +1,23 @@
+---
+title: "Biomarker Analysis"
+output: html_document
+---
+
+```{r, setup, include = FALSE}
+library(here)
+load(here("output", "summ_stats.RData"))
+```
+
+# Results
+
+There were `r summ_stats$n` observations included. There were 
+`r summ_stats$n_female` females and the average age of participants 
+was `r summ_stats$mean_age`. Summary plots are shown below. 
+
+```{r, figure-1, echo = FALSE}
+knitr::include_graphics(here("figs", "fig1.png"))
+```
+
+```{r, figure-2, echo = FALSE}
+knitr::include_graphics(here("figs", "fig2.png"))
+```
