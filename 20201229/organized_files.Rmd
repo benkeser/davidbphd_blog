@@ -7,13 +7,13 @@ output:
     variant: commonmark+backtick_code_blocks
 ---
 
-## Project organization
+## Project organization for reproducible data science
 
 This post focuses on one of the most boring, but simultaneously most important elements of being an effective data scientist: project organization. I describe a system for maintaining project folders that are organized, well documented, readable, and reproducible.
 
-First, I will try to convince you that project organization is crucial for doing good (data) science. Then I outline a few fundamental principles of good project organization that I believe everyone should adhere to. I also include a toy project that shows how these principles might be used in practice. By the end, I think you will have an appreciation for exactly how strangely into organization I am.
+First, I will try to convince you that project organization is crucial for doing good (data) science. Second, I outline a few fundamental principles of good project organization that I believe everyone should adhere to. Finally, I also include a toy project that shows how these principles might be used in practice. By the end, I think you will have an appreciation for exactly how strangely into organization I am.
 
-![Monica from friends claiming to have won awards for her organizational skills](https://media1.tenor.com/images/ca0046035d258eac9a85bca61f821373/tenor.gif?itemid=8819628)
+![Monica from friends claiming to have won awards for her organizational skills](https://github.com/benkeser/davidbphd_blog/blob/main/20201229/img/monica.gif?raw=true)
 
 A disclaimer: the advice here is aimed towards projects that are primarily 
 
@@ -66,19 +66,19 @@ Publishing analysis code and, when possible, data alongside your work is the bes
 
 The most important principle of project organization is that there is no "correct" way to organize projects, but there are definitely incorrect ways. I highlight a few principles that will keep you on the right track and show a simple toy project of how I would approach project organization. The biggest thing to remember is to develop a system and, once it's working well, more or less stick to it! Remember the goal is to organize projects in such a way that it is painless to drop back into after months away. This will not be possible if every project is structured differently!
 
-#### For better science, plan ahead
+#### For good science, plan ahead
 
 > As statisticians, the best thing we can do to ensure the validity of science is to fully pre-specify the entire analysis *before ever looking at the data*.
 
 Have you ever been in this situation or is it just me?
 
-A collaborator asks for a set of "pre-specified" analyses, but results don't quite make sense. So they ask for a few more. And a few more after that. Oddly enough, you notice a correlation between magnitude of p-values and "making sense". You, a principled statistician, point out that we should only trust  pre-specified analyses and all other analyses are exploratory. But by now your collaborator is seeing NEJM and JAMA logos floating around their head and are planning a future TED talks. To placate you, your collaborator puts a sentence in the discussion about a need to validate in future studies. You cry yourself to sleep at night, having failed in your solemn duty as an arbiter or the scientific method.
+A collaborator asks for a set of "pre-specified" analyses, but results don't quite make sense. So they ask for a few more. And a few more. Oddly enough, you notice a correlation between magnitude of p-values and "making sense". You, a principled statistician, point out that we should only trust pre-specified analyses and all other analyses should be considered exploratory. But by now your collaborator has the JAMA logo in their eyes and are planning a future TED talks. To placate you, they put a sentence in the discussion about a need to validate in future studies. You cry yourself to sleep at night, having failed in your solemn duty as an arbiter or the scientific method.
 
 To avoid this situation, commit to producing (and [probably publishing](https://doi.org/10.1186/s12874-019-0879-5)) prespecified analysis plans. 
 
 ![Drake meme: prespecified statistical analysis? nope. p-hacking your way to JAMA](https://github.com/benkeser/davidbphd_blog/blob/main/20201229/img/drake.JPG?raw=true)
 
-#### For best science, code ahead
+#### For better science, code ahead
 
 In addition to having a pre-specified statistical analysis plan, we should commit to coding up the analysis stipulated by that plan to the greatest extent possible before we receive the real data. 
 
@@ -87,6 +87,8 @@ How can we write code to analyze data that we don't have yet? We work with datab
 > Put together a *mock data set* that is as close as possible in format to the real data that will eventually be analyzed. 
 
 In fact, we can often use the real data to this end. For example, we often have access to baseline data while longitudinal data collection is ongoing. We can use these data to develop a code bank. To maintain objectivity, we can augment the baseline data with a simulated exposure/treatment and a simulated outcome variable. By removing the real exposure and/or outcome from the data, we maintain our objectivity while building a functional code base for the analysis.
+
+#### For best science, push a button 
 
 We should strive to be at a point where, once the real data arrives, we are ready to plug-in the real data, push a single button, and generate results. 
 
@@ -124,7 +126,9 @@ If we start cooking without our recipe -- add an extra dash of salt here, make a
 
 It is tempting to have a single script execute an entire analysis. For small projects (and perhaps highly skilled `vim` users) maybe this is OK. For the rest of us, we should strive to *modularize* almost all [efn_note]*Why almost?* There are of course exceptions to this that arise due to practical considerations. For example, we have a small data set from which we need to make, say ten different figures. In general, I would encourage a separate script to make each of these 10 figures. This would make it easier to debug one particular figure, to tweak the color scheme, fonts, labels, etc... However, if instead your analysis is based on an enormous data set, a serious consideration in the development of the analysis is the time it takes to load the data. For such an analysis, we may opt for a less modular workflow to generate the needed figures -- for example, using a single script to load the data and produce all ten figures.[/efn_note] aspects of our analysis. 
 
-Returning to the cooking metaphor above, we want to break our recipes up into small chunks. For example, say we are making a pie. A modular approach would be to separate the recipe for the pie's crust from the recipe for the pie's filling (and to separate these recipes from all other recipes for the meal). Why is this modularity helpful? Well, if we bake our pie and find it tastes bad, we can ask, "*What exactly* tastes bad? The crust? The filling?" We can immediately pull out the recipe card for that component and scrutinize it.
+Returning to the cooking metaphor above, we want to break our recipes up into small chunks. For example, say we are making a pie. A modular approach would be to separate the recipe for the pie's crust from the recipe for the pie's filling (and to separate these recipes from all other recipes for the meal). 
+
+Why is this modularity helpful? Well, if we bake our pie and find it tastes bad, we can ask, "*What exactly* tastes bad? The crust? The filling?" We can immediately pull out the recipe card for that component and scrutinize it.
 
 > Writing modular code allows us to scrutinize each piece of the analysis and to fine tune *that particular piece* in isolation. 
 
@@ -179,7 +183,7 @@ You can download the [toy project from my GitHub](https://raw.githubusercontent.
 The contents of the project directory are shown below.
 
 ```{bash, show-file-contents, echo = FALSE, comment = ""}
-tree -a example_project
+tree -a toy_project
 ```
 
 * `Makefile` describes all the dependencies of output created in my analysis.
@@ -190,16 +194,18 @@ tree -a example_project
 
 #### Examining the `Makefile`
 
-We can start our orientation to the project by looking at the `Makefile`. Again, if you are not familiar with `make`, please [review my slides here](https://benkeser.github.io/info550/lectures/06_make/make.html). By convention the first rule in a `Makefile` is one that builds the final product. From the command line if we simply type `make` and hit Return the final product will compile. We'll orient ourselves to this project by starting at the end -- we want to understand all of the components of the final report, before diving into the specifics of how those components are made. Here is the `make` rule for building the report.
+We can start our orientation to the project by looking at the `Makefile`. Again, if you are not familiar with `make`, please [review my slides here](https://benkeser.github.io/info550/lectures/06_make/make.html). By convention the first rule in a `Makefile` is one that builds the final product. From the command line if we simply type `make` and hit Return the final product will compile. 
+
+We'll orient ourselves to this project by starting at the end -- we want to understand all of the components of the final report, before diving into the specifics of how those components are made. Here is the `make` rule for building the report.
 
 ```{bash, show-make-report, echo = FALSE, comment = ""}
-cat example_project/Makefile | head -5
+cat toy_project/Makefile | head -5
 ```
 
 We see that the `report` depends on the source file `R/report.Rmd` as well as some files in the `output` folder that have not yet been created. Looking further down the `Makefile`, we see that these files have their own `make` rules. The rule to `make` the `report` itself, stipulates changing into the `R` directory [efn_note]This step is needed because R Markdown apparently likes to render documents in an R session with working directory set to the the directory where the `.Rmd` file lives.[/efn_note] and executing the `make_report.R` script, shown below. 
 
 ```{bash, show-make-report-rmd, echo = FALSE, comment = ""}
-cat example_project/R/make_report.R
+cat toy_project/R/make_report.R
 ```
 
 Nothing too complicated happening here -- just rendering the document using a call to the [`render`](https://rmarkdown.rstudio.com/docs/reference/render.html) function from the [`rmarkdown`](https://rmarkdown.rstudio.com/) package. We  see the utility of the `here` package, where we are using a call to the `here` function to specify the save directory relative to the project's root directory, i.e., the directory that contains the `.here` file.
@@ -218,7 +224,7 @@ Before diving into the guts of the project, let's pause to comment on the `Makef
 The contents of the report are shown below.
 
 ```{bash, show-report-contents, echo = FALSE, comment = ""}
-cat example_project/R/report.Rmd
+cat toy_project/R/report.Rmd
 ```
 
 The report is intentionally simplistic: it shows some in-line results and two figures. The figures are placed in the document using the [`include_graphics`](https://www.rdocumentation.org/packages/knitr/versions/1.30/topics/include_graphics) function from the [`knitr`](https://yihui.org/knitr/) package. 
@@ -230,25 +236,25 @@ The report is intentionally simplistic: it shows some in-line results and two fi
 The "data" for this example consist of two files and are meant to mimic what a simple cleaning operation could look like and how it can be folded into a reproducible workflow. In the `data` folder, we have `biomarkers.txt`:
 
 ```{bash, show-biomarkers-data, echo = FALSE, comment = ""}
-cat example_project/data/biomarkers.txt
+cat toy_project/data/biomarkers.txt
 ```
 
 We also have `clinical.txt`. 
 
 ```{bash, show-clinical-data, echo = FALSE, comment = ""}
-cat example_project/data/clinical.txt
+cat toy_project/data/clinical.txt
 ```
 
 The goal of "cleaning" these data is to merge them into a single file and save it. That is what is accomplished by `R/make_clean_data.R`.
 
 ```{bash, show-make-clean-data, echo = FALSE, comment = ""}
-cat example_project/R/make_clean_data.R
+cat toy_project/R/make_clean_data.R
 ```
 
 The second rule in `Makefile` specifies a rule for creating the clean data set.
 
 ```{bash, show-clean-data-rule, echo = FALSE, comment = ""}
-sed -n '7,10p' example_project/Makefile
+sed -n '7,10p' toy_project/Makefile
 ```
 
 As expected, based on `R/make_clean_data.R` shown above, the cleaned data set will be stored in a file `output/clean_data.txt`. The creation of this file depends on this `R` script, as well as both raw data files.
@@ -258,7 +264,7 @@ As expected, based on `R/make_clean_data.R` shown above, the cleaned data set wi
 In order to keep the `report.Rmd` clean, summary statistics needed for the report are computed and a `list` containing those statistics is saved in the `R/make_summary_stats.R` script.
 
 ```{bash, cat-make-summary-stat, echo = FALSE, comment = ""}
-cat example_project/R/make_summary_stats.R
+cat toy_project/R/make_summary_stats.R
 ```
 
 The `output/summ_stats.RData` object is `load`'ed into `R` by `report.Rmd` to obtain the in-line-referenced summary statistics. Note that the `R` script sources in the contents of `R/good_round.R`. I will leave it to the reader to explore the contents of that file. This step is included in this tutorial to mimic how one might bring in more general outside functions.[efn_note] Power users should consider the benefits of including a project-specific `R` package to formalize the documentation of such functions. You can see in `R/good_round.R` I am including [`roxygen2`](https://roxygen2.r-lib.org/)-style documentation, anticipating that this function may eventually be moved into a package.[/efn_note]
@@ -266,7 +272,7 @@ The `output/summ_stats.RData` object is `load`'ed into `R` by `report.Rmd` to ob
 A rule is given for making the `summ_stats` object. 
 
 ```{bash, show-summ-stat-rule, echo = FALSE, comment = ""}
-sed -n '12,16p' example_project/Makefile
+sed -n '12,16p' toy_project/Makefile
 ```
 
 #### Making figures
@@ -274,14 +280,21 @@ sed -n '12,16p' example_project/Makefile
 Similarly, we clean data in hand, we can `make` the figures needed by the report. The first figure is a simple scatter plot created by `R/make_fig1.R`
 
 ```{bash, cat-make-fig1, echo = FALSE, comment = ""}
-cat example_project/R/make_fig1.R
+cat toy_project/R/make_fig1.R
 ```
 
 The `make` rule should look familiar by now.
 
 ```{bash, show-make-rule, echo = FALSE, comment = ""}
-sed -n '18,20p' example_project/Makefile
+sed -n '18,20p' toy_project/Makefile
 ```
 
 I leave it to the reader to check out how `figs/fig2.png` is constructed (hint: pretty much the same as `fig1`). I also leave it to you to check the `Makefile` for specifying a ([`PHONY`](https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html)) rule for making all `figs` with a single command.
 
+## Wrapping up
+
+I hope this has done something to convince you that being organized is worth climbing learning curve for some of these approaches. 
+
+I would be glad to hear from you with your own tips and tricks for organization. Leave a comment below or give me a shout on Twitter [\@biosbenk](https://twitter.com/biosbenk).
+
+Wishing all of you the best of luck in all your future reproducible endeavors. 

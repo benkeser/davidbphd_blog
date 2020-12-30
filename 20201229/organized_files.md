@@ -1,4 +1,4 @@
-## Project organization
+## Project organization for reproducible data science
 
 This post focuses on one of the most boring, but simultaneously most
 important elements of being an effective data scientist: project
@@ -6,14 +6,14 @@ organization. I describe a system for maintaining project folders that
 are organized, well documented, readable, and reproducible.
 
 First, I will try to convince you that project organization is crucial
-for doing good (data) science. Then I outline a few fundamental
+for doing good (data) science. Second, I outline a few fundamental
 principles of good project organization that I believe everyone should
-adhere to. I also include a toy project that shows how these principles
-might be used in practice. By the end, I think you will have an
-appreciation for exactly how strangely into organization I am.
+adhere to. Finally, I also include a toy project that shows how these
+principles might be used in practice. By the end, I think you will have
+an appreciation for exactly how strangely into organization I am.
 
 ![Monica from friends claiming to have won awards for her organizational
-skills](https://media1.tenor.com/images/ca0046035d258eac9a85bca61f821373/tenor.gif?itemid=8819628)
+skills](https://github.com/benkeser/davidbphd_blog/blob/main/20201229/img/monica.gif?raw=true)
 
 A disclaimer: the advice here is aimed towards projects that are
 primarily
@@ -114,7 +114,7 @@ to organize projects in such a way that it is painless to drop back into
 after months away. This will not be possible if every project is
 structured differently\!
 
-#### For better science, plan ahead
+#### For good science, plan ahead
 
 > As statisticians, the best thing we can do to ensure the validity of
 > science is to fully pre-specify the entire analysis *before ever
@@ -123,16 +123,15 @@ structured differently\!
 Have you ever been in this situation or is it just me?
 
 A collaborator asks for a set of “pre-specified” analyses, but results
-don’t quite make sense. So they ask for a few more. And a few more after
-that. Oddly enough, you notice a correlation between magnitude of
-p-values and “making sense”. You, a principled statistician, point out
-that we should only trust pre-specified analyses and all other analyses
-are exploratory. But by now your collaborator is seeing NEJM and JAMA
-logos floating around their head and are planning a future TED talks. To
-placate you, your collaborator puts a sentence in the discussion about a
-need to validate in future studies. You cry yourself to sleep at night,
-having failed in your solemn duty as an arbiter or the scientific
-method.
+don’t quite make sense. So they ask for a few more. And a few more.
+Oddly enough, you notice a correlation between magnitude of p-values and
+“making sense”. You, a principled statistician, point out that we should
+only trust pre-specified analyses and all other analyses should be
+considered exploratory. But by now your collaborator has the JAMA logo
+in their eyes and are planning a future TED talks. To placate you, they
+put a sentence in the discussion about a need to validate in future
+studies. You cry yourself to sleep at night, having failed in your
+solemn duty as an arbiter or the scientific method.
 
 To avoid this situation, commit to producing (and [probably
 publishing](https://doi.org/10.1186/s12874-019-0879-5)) prespecified
@@ -142,7 +141,7 @@ analysis plans.
 way to
 JAMA](https://github.com/benkeser/davidbphd_blog/blob/main/20201229/img/drake.JPG?raw=true)
 
-#### For best science, code ahead
+#### For better science, code ahead
 
 In addition to having a pre-specified statistical analysis plan, we
 should commit to coding up the analysis stipulated by that plan to the
@@ -163,6 +162,8 @@ objectivity, we can augment the baseline data with a simulated
 exposure/treatment and a simulated outcome variable. By removing the
 real exposure and/or outcome from the data, we maintain our objectivity
 while building a functional code base for the analysis.
+
+#### For best science, push a button
 
 We should strive to be at a point where, once the real data arrives, we
 are ready to plug-in the real data, push a single button, and generate
@@ -238,10 +239,12 @@ Returning to the cooking metaphor above, we want to break our recipes up
 into small chunks. For example, say we are making a pie. A modular
 approach would be to separate the recipe for the pie’s crust from the
 recipe for the pie’s filling (and to separate these recipes from all
-other recipes for the meal). Why is this modularity helpful? Well, if we
-bake our pie and find it tastes bad, we can ask, “*What exactly* tastes
-bad? The crust? The filling?” We can immediately pull out the recipe
-card for that component and scrutinize it.
+other recipes for the meal).
+
+Why is this modularity helpful? Well, if we bake our pie and find it
+tastes bad, we can ask, “*What exactly* tastes bad? The crust? The
+filling?” We can immediately pull out the recipe card for that component
+and scrutinize it.
 
 > Writing modular code allows us to scrutinize each piece of the
 > analysis and to fine tune *that particular piece* in isolation.
@@ -263,9 +266,9 @@ how everything fits together:
   - Dinner consists of a pie, a hamburger, and French fries (America\!).
       - The pie is built from a crust and filling.
           - The crust is built from these ingredients according to this
-            pie crust recipe.
-          - The filling is built from these ingredients according to
-            this
+            recipe.
+          - The filling is built from *these ingredients* according to
+            *this* recipe.
       - The hamburger is built from …
 
 This is the role of a `Makefile` and [GNU
@@ -329,7 +332,7 @@ I have several reasons for preferring this approach:
 ## Toy project
 
 You can download the [toy project from my
-GitHub](https://raw.githubusercontent.com/benkeser/davidbphd_blog/main/20201229/files/example_project.zip).
+GitHub](https://raw.githubusercontent.com/benkeser/davidbphd_blog/main/20201229/toy_project.zip).
 The final product of this project is an html report created based on an
 R Markdown document. The report gives summary statistics of the data and
 shows two simple figures. The data and reported results are
@@ -338,7 +341,7 @@ structure an analysis in a way that satisfies the goals outlined above.
 
 The contents of the project directory are shown below.
 
-    example_project
+    toy_project
     ├── .here
     ├── Makefile
     ├── R
@@ -376,10 +379,12 @@ my slides
 here](https://benkeser.github.io/info550/lectures/06_make/make.html). By
 convention the first rule in a `Makefile` is one that builds the final
 product. From the command line if we simply type `make` and hit Return
-the final product will compile. We’ll orient ourselves to this project
-by starting at the end – we want to understand all of the components of
-the final report, before diving into the specifics of how those
-components are made. Here is the `make` rule for building the
+the final product will compile.
+
+We’ll orient ourselves to this project by starting at the end – we want
+to understand all of the components of the final report, before diving
+into the specifics of how those components are made. Here is the `make`
+rule for building the
     report.
 
     ## report                : compiles the final report in output/report.html
@@ -611,3 +616,15 @@ I leave it to the reader to check out how `figs/fig2.png` is constructed
 the `Makefile` for specifying a
 ([`PHONY`](https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html))
 rule for making all `figs` with a single command.
+
+## Wrapping up
+
+I hope this has done something to convince you that being organized is
+worth climbing learning curve for some of these approaches.
+
+I would be glad to hear from you with your own tips and tricks for
+organization. Leave a comment below or give me a shout on Twitter
+[@biosbenk](https://twitter.com/biosbenk).
+
+Wishing all of you the best of luck in all your future reproducible
+endeavors.
