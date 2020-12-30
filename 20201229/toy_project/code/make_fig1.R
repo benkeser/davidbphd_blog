@@ -1,6 +1,6 @@
 # make a two-panel scatter plot of biomarker by age and sex
 
-data_merge <- read.table(here::here("output", "clean_data.txt"), 
+data_merge <- read.table(here::here("clean_data", "clean_data.txt"), 
                          header = TRUE)
 
 png(here::here("figs", "fig1.png"))

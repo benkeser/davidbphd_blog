@@ -2,10 +2,10 @@
 # saves file output/summ_stats.RData
 
 # source in a rounding function
-source(here::here("R", "good_round.R"))
+source(here::here("code", "good_round.R"))
 
 data_merge <- read.table(
-  here::here("output", "clean_data.txt"), 
+  here::here("clean_data", "clean_data.txt"), 
   header = TRUE
 )
 
@@ -20,5 +20,5 @@ summ_stats <- list(
 )
 
 save(
-  summ_stats, file = here::here("output", "summ_stats.RData"))
+  summ_stats, file = here::here("output", "summ_stats.RData")
 )

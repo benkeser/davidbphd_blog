@@ -1,7 +1,7 @@
 # make a scatter plot of biomarker 1 vs. biomarker 2
 
 data_merge <- read.table(
-  here::here("output", "clean_data.txt"), header = TRUE
+  here::here("clean_data", "clean_data.txt"), header = TRUE
 )
 
 png(here::here("figs", "fig2.png"))

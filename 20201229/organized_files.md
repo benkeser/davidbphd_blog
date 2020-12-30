@@ -271,11 +271,19 @@ how everything fits together:
             *this* recipe.
       - The hamburger is built from …
 
-This is the role of a `Makefile` and [GNU
-Make](https://www.gnu.org/software/make/). This is a plain text file
-that specifies dependencies between your code and the objects it
-produces. To learn more about `make`, please see the [slides from my
-course](https://benkeser.github.io/info550/lectures/06_make/make.html).
+This is the role of a [GNU Make](https://www.gnu.org/software/make/) and
+an associated `Makefile`. GNU Make is a widely distributed program
+originally designed for compiling software. Using this program, we write
+a plain text `Makefile` that specifies dependencies between your code
+and the objects it produces. This approach provides documentation for
+how your project fits together and also a convenient way of building the
+output of your analysis. To learn more about `make`, please see the
+[slides from my
+course](https://benkeser.github.io/info550/lectures/06_make/make.html).\[efn\_note\]
+Alternatives to GNU Make exist including [CMake](https://cmake.org/),
+[Rake](https://github.com/ruby/rake) (for Ruby projects),
+[SCons](https://www.scons.org/) (for python projects), among
+others.\[/efn\_note\]
 
 #### The `here` `R` package is also your friend
 
@@ -324,8 +332,10 @@ I have several reasons for preferring this approach:
   - You are *modularizing* the report-writing element of the project.
     The written report is now much more readable by removing code
     chunks.
-  - It is easier to make small tweaks to `R` scripts than to directly
-    modify an `Rmd` document and re-compile.
+  - It is faster to make many small tweaks (e.g., modifying elements of
+    a figure) to one particular `R` script than it is to make many small
+    tweaks in an `Rmd` document, since the latter requires re-compiling
+    the whole document with each tweak.
   - The `Makefile` approach is a more deliberate system for caching
     results than that adopted by R Markdown.
 
@@ -344,7 +354,9 @@ The contents of the project directory are shown below.
     toy_project
     ├── .here
     ├── Makefile
-    ├── R
+    ├── clean_data
+    │   └── clean_data.txt
+    ├── code
     │   ├── good_round.R
     │   ├── make_clean_data.R
     │   ├── make_fig1.R
@@ -352,24 +364,24 @@ The contents of the project directory are shown below.
     │   ├── make_report.R
     │   ├── make_summary_stats.R
     │   └── report.Rmd
-    ├── data
-    │   ├── biomarkers.txt
-    │   └── clinical.txt
     ├── figs
-    └── output
+    ├── output
+    └── raw_data
+        ├── biomarkers.txt
+        └── clinical.txt
     
-    4 directories, 11 files
+    5 directories, 12 files
 
   - `Makefile` describes all the dependencies of output created in my
     analysis.
-  - `R` is a directory containing all of my scripts needed for the
+  - `code` is a directory containing all of my scripts needed for the
     analysis.
-  - `data` is a directory containing two small data sets that need to be
-    merged for the analysis.
+  - `raw_data` is a directory containing two small data sets that need
+    to be merged for the analysis.
   - `.here` is an empty file that is used by the [`here`
     package](https://here.r-lib.org/) to set the root project directory.
-  - `figs` and `output` are empty directories that will contain output
-    of my analysis.
+  - `clean_data`, `figs`, `output` are empty directories that will
+    contain output of my analysis.
 
 #### Examining the `Makefile`
 
@@ -387,13 +399,13 @@ into the specifics of how those components are made. Here is the `make`
 rule for building the
     report.
 
-    ## report                : compiles the final report in output/report.html
-    report: R/report.Rmd \
+    ## report                    : compiles the final report in output/report.html
+    report: code/report.Rmd \
       output/summ_stats.RData \
       figs/fig1.png figs/fig2.png
-        cd R && Rscript make_report.R
+        cd code && Rscript make_report.R
 
-We see that the `report` depends on the source file `R/report.Rmd` as
+We see that the `report` depends on the source file `code/report.Rmd` as
 well as some files in the `output` folder that have not yet been
 created. Looking further down the `Makefile`, we see that these files
 have their own `make` rules. The rule to `make` the `report` itself,
@@ -469,8 +481,11 @@ function from the [`knitr`](https://yihui.org/knitr/) package.
 
 The “data” for this example consist of two files and are meant to mimic
 what a simple cleaning operation could look like and how it can be
-folded into a reproducible workflow. In the `data` folder, we have
-`biomarkers.txt`:
+folded into a reproducible workflow. For the definitive work on how to
+process and clean data, see Hadley Wickham’s [paper on tidy
+data](https://www.jstatsoft.org/article/view/v059i10).
+
+In the `data` folder, we have `biomarkers.txt`:
 
     id biom1 biom2
     1 -0.319 0.274
@@ -499,49 +514,50 @@ We also have `clinical.txt`.
     10 69 0
 
 The goal of “cleaning” these data is to merge them into a single file
-and save it. That is what is accomplished by `R/make_clean_data.R`.
+and save it. That is what is accomplished by `code/make_clean_data.R`.
 
     # merges clinical and biomarkers data set
-    # saves output/clean_data.txt
+    # saves clean_data/clean_data.txt
     
     data_clin <- read.table(
-      here::here("data", "clinical.txt"), header = TRUE)
+      here::here("raw_data", "clinical.txt"), header = TRUE
     )
     data_biom <- read.table(
-      here::here("data", "biomarkers.txt"), header = TRUE
+      here::here("raw_data", "biomarkers.txt"), header = TRUE
     )
     data_merge <- merge(data_clin, data_biom)
     
     write.table(
-      data_merge, here::here("output", "clean_data.txt")
+      data_merge, here::here("clean_data", "clean_data.txt")
     )
 
 The second rule in `Makefile` specifies a rule for creating the clean
 data set.
 
-    ## output/clean_data.txt : two raw data sets merged
-    output/clean_data.txt: R/make_clean_data.R \
-      data/biomarkers.txt data/clinical.txt
-        Rscript R/make_clean_data.R
+    ## clean_data/clean_data.txt : two raw data sets merged
+    clean_data/clean_data.txt: code/make_clean_data.R \
+      raw_data/biomarkers.txt raw_data/clinical.txt
+        Rscript code/make_clean_data.R
 
-As expected, based on `R/make_clean_data.R` shown above, the cleaned
-data set will be stored in a file `output/clean_data.txt`. The creation
-of this file depends on this `R` script, as well as both raw data files.
+As expected, based on `code/make_clean_data.R` shown above, the cleaned
+data set will be stored in a file `clean_data/clean_data.txt`. The
+creation of this file depends on this `R` script, as well as both raw
+data files.
 
 #### Obtaining summary statistics
 
 In order to keep the `report.Rmd` clean, summary statistics needed for
 the report are computed and a `list` containing those statistics is
-saved in the `R/make_summary_stats.R` script.
+saved in the `code/make_summary_stats.R` script.
 
     # get summary statistics needed for the report
     # saves file output/summ_stats.RData
     
     # source in a rounding function
-    source(here::here("R", "good_round.R"))
+    source(here::here("code", "good_round.R"))
     
     data_merge <- read.table(
-      here::here("output", "clean_data.txt"), 
+      here::here("clean_data", "clean_data.txt"), 
       header = TRUE
     )
     
@@ -556,17 +572,17 @@ saved in the `R/make_summary_stats.R` script.
     )
     
     save(
-      summ_stats, file = here::here("output", "summ_stats.RData"))
+      summ_stats, file = here::here("output", "summ_stats.RData")
     )
 
 The `output/summ_stats.RData` object is `load`’ed into `R` by
 `report.Rmd` to obtain the in-line-referenced summary statistics. Note
-that the `R` script sources in the contents of `R/good_round.R`. I will
-leave it to the reader to explore the contents of that file. This step
-is included in this tutorial to mimic how one might bring in more
+that the `R` script sources in the contents of `code/good_round.R`. I
+will leave it to the reader to explore the contents of that file. This
+step is included in this tutorial to mimic how one might bring in more
 general outside functions.\[efn\_note\] Power users should consider the
 benefits of including a project-specific `R` package to formalize the
-documentation of such functions. You can see in `R/good_round.R` I am
+documentation of such functions. You can see in `code/good_round.R` I am
 including [`roxygen2`](https://roxygen2.r-lib.org/)-style documentation,
 anticipating that this function may eventually be moved into a
 package.\[/efn\_note\]
@@ -574,21 +590,21 @@ package.\[/efn\_note\]
 A rule is given for making the `summ_stats`
     object.
 
-    ## output/summ_stats.txt : summary statistics reported in text of report
-    output/summ_stats.RData: R/make_summary_stats.R \
-      R/good_round.R \
-      output/clean_data.txt
-        Rscript R/make_summary_stats.R
+    ## output/summ_stats.txt     : summary statistics reported in text of report
+    output/summ_stats.RData: code/make_summary_stats.R \
+      code/good_round.R \
+      clean_data/clean_data.txt
+        Rscript code/make_summary_stats.R
 
 #### Making figures
 
 Similarly, we clean data in hand, we can `make` the figures needed by
 the report. The first figure is a simple scatter plot created by
-`R/make_fig1.R`
+`code/make_fig1.R`
 
     # make a two-panel scatter plot of biomarker by age and sex
     
-    data_merge <- read.table(here::here("output", "clean_data.txt"), 
+    data_merge <- read.table(here::here("clean_data", "clean_data.txt"), 
                              header = TRUE)
     
     png(here::here("figs", "fig1.png"))
@@ -605,11 +621,12 @@ the report. The first figure is a simple scatter plot created by
          col = data_merge$sexf + 1, pch = 19)
     dev.off()
 
-The `make` rule should look familiar by now.
+The `make` rule should look familiar by
+    now.
 
-    ## figs/fig1.png         : scatter plot of biomarker 1 vs. biomarker
-    figs/fig1.png: R/make_fig1.R output/clean_data.txt
-        Rscript R/make_fig1.R
+    ## figs/fig1.png             : scatter plot of biomarker 1 vs. biomarker
+    figs/fig1.png: code/make_fig1.R clean_data/clean_data.txt
+        Rscript code/make_fig1.R
 
 I leave it to the reader to check out how `figs/fig2.png` is constructed
 (hint: pretty much the same as `fig1`). I also leave it to you to check
@@ -628,3 +645,5 @@ organization. Leave a comment below or give me a shout on Twitter
 
 Wishing all of you the best of luck in all your future reproducible
 endeavors.
+
+#### Footnotes

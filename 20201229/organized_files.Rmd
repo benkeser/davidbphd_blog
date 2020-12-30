@@ -148,7 +148,7 @@ Returning to the cooking example, we need a meta-recipe that tells us how everyt
 		* The filling is built from *these ingredients* according to *this* recipe.
 	* The hamburger is built from ...
 
-This is the role of a `Makefile` and [GNU Make](https://www.gnu.org/software/make/). This is a plain text file that specifies dependencies between your code and the objects it produces. To learn more about `make`, please see the [slides from my course](https://benkeser.github.io/info550/lectures/06_make/make.html). 
+This is the role of a [GNU Make](https://www.gnu.org/software/make/) and an associated `Makefile`. GNU Make is a widely distributed program originally designed for compiling software. Using this program, we write a plain text `Makefile` that specifies dependencies between your code and the objects it produces. This approach provides documentation for how your project fits together and also a convenient way of building the output of your analysis. To learn more about `make`, please see the [slides from my course](https://benkeser.github.io/info550/lectures/06_make/make.html).[efn_note] Alternatives to GNU Make exist including [CMake](https://cmake.org/), [Rake](https://github.com/ruby/rake) (for Ruby projects), [SCons](https://www.scons.org/) (for python projects), among others.[/efn_note]
 
 #### The `here` `R` package is also your friend
 
@@ -173,7 +173,7 @@ R Markdown is a great program for integrating code and output, but it's also eas
 I have several reasons for preferring this approach:
 
 * You are *modularizing* the report-writing element of the project. The written report is now much more readable by removing code chunks.
-* It is easier to make small tweaks to `R` scripts than to directly modify an `Rmd` document and re-compile.
+* It is faster to make many small tweaks (e.g., modifying elements of a figure) to one particular `R` script than it is to make many small tweaks in an `Rmd` document, since the latter requires re-compiling the whole document with each tweak.
 * The `Makefile` approach is a more deliberate system for caching results than that adopted by R Markdown.
 
 ## Toy project
@@ -187,10 +187,10 @@ tree -a toy_project
 ```
 
 * `Makefile` describes all the dependencies of output created in my analysis.
-* `R` is a directory containing all of my scripts needed for the analysis.
-* `data` is a directory containing two small data sets that need to be merged for the analysis.
+* `code` is a directory containing all of my scripts needed for the analysis.
+* `raw_data` is a directory containing two small data sets that need to be merged for the analysis.
 * `.here` is an empty file that is used by the [`here` package](https://here.r-lib.org/) to set the root project directory.
-* `figs` and `output` are empty directories that will contain output of my analysis.
+* `clean_data`, `figs`, `output` are empty directories that will contain output of my analysis.
 
 #### Examining the `Makefile`
 
@@ -202,10 +202,10 @@ We'll orient ourselves to this project by starting at the end -- we want to unde
 cat toy_project/Makefile | head -5
 ```
 
-We see that the `report` depends on the source file `R/report.Rmd` as well as some files in the `output` folder that have not yet been created. Looking further down the `Makefile`, we see that these files have their own `make` rules. The rule to `make` the `report` itself, stipulates changing into the `R` directory [efn_note]This step is needed because R Markdown apparently likes to render documents in an R session with working directory set to the the directory where the `.Rmd` file lives.[/efn_note] and executing the `make_report.R` script, shown below. 
+We see that the `report` depends on the source file `code/report.Rmd` as well as some files in the `output` folder that have not yet been created. Looking further down the `Makefile`, we see that these files have their own `make` rules. The rule to `make` the `report` itself, stipulates changing into the `R` directory [efn_note]This step is needed because R Markdown apparently likes to render documents in an R session with working directory set to the the directory where the `.Rmd` file lives.[/efn_note] and executing the `make_report.R` script, shown below. 
 
 ```{bash, show-make-report-rmd, echo = FALSE, comment = ""}
-cat toy_project/R/make_report.R
+cat toy_project/code/make_report.R
 ```
 
 Nothing too complicated happening here -- just rendering the document using a call to the [`render`](https://rmarkdown.rstudio.com/docs/reference/render.html) function from the [`rmarkdown`](https://rmarkdown.rstudio.com/) package. We  see the utility of the `here` package, where we are using a call to the `here` function to specify the save directory relative to the project's root directory, i.e., the directory that contains the `.here` file.
@@ -224,7 +224,7 @@ Before diving into the guts of the project, let's pause to comment on the `Makef
 The contents of the report are shown below.
 
 ```{bash, show-report-contents, echo = FALSE, comment = ""}
-cat toy_project/R/report.Rmd
+cat toy_project/code/report.Rmd
 ```
 
 The report is intentionally simplistic: it shows some in-line results and two figures. The figures are placed in the document using the [`include_graphics`](https://www.rdocumentation.org/packages/knitr/versions/1.30/topics/include_graphics) function from the [`knitr`](https://yihui.org/knitr/) package. 
@@ -233,22 +233,24 @@ The report is intentionally simplistic: it shows some in-line results and two fi
 
 #### Creating clean data
 
-The "data" for this example consist of two files and are meant to mimic what a simple cleaning operation could look like and how it can be folded into a reproducible workflow. In the `data` folder, we have `biomarkers.txt`:
+The "data" for this example consist of two files and are meant to mimic what a simple cleaning operation could look like and how it can be folded into a reproducible workflow. For the definitive work on how to process and clean data, see Hadley Wickham's [paper on tidy data](https://www.jstatsoft.org/article/view/v059i10). 
+
+In the `data` folder, we have `biomarkers.txt`:
 
 ```{bash, show-biomarkers-data, echo = FALSE, comment = ""}
-cat toy_project/data/biomarkers.txt
+cat toy_project/raw_data/biomarkers.txt
 ```
 
 We also have `clinical.txt`. 
 
 ```{bash, show-clinical-data, echo = FALSE, comment = ""}
-cat toy_project/data/clinical.txt
+cat toy_project/raw_data/clinical.txt
 ```
 
-The goal of "cleaning" these data is to merge them into a single file and save it. That is what is accomplished by `R/make_clean_data.R`.
+The goal of "cleaning" these data is to merge them into a single file and save it. That is what is accomplished by `code/make_clean_data.R`.
 
 ```{bash, show-make-clean-data, echo = FALSE, comment = ""}
-cat toy_project/R/make_clean_data.R
+cat toy_project/code/make_clean_data.R
 ```
 
 The second rule in `Makefile` specifies a rule for creating the clean data set.
@@ -257,17 +259,17 @@ The second rule in `Makefile` specifies a rule for creating the clean data set.
 sed -n '7,10p' toy_project/Makefile
 ```
 
-As expected, based on `R/make_clean_data.R` shown above, the cleaned data set will be stored in a file `output/clean_data.txt`. The creation of this file depends on this `R` script, as well as both raw data files.
+As expected, based on `code/make_clean_data.R` shown above, the cleaned data set will be stored in a file `clean_data/clean_data.txt`. The creation of this file depends on this `R` script, as well as both raw data files.
 
 #### Obtaining summary statistics
 
-In order to keep the `report.Rmd` clean, summary statistics needed for the report are computed and a `list` containing those statistics is saved in the `R/make_summary_stats.R` script.
+In order to keep the `report.Rmd` clean, summary statistics needed for the report are computed and a `list` containing those statistics is saved in the `code/make_summary_stats.R` script.
 
 ```{bash, cat-make-summary-stat, echo = FALSE, comment = ""}
-cat toy_project/R/make_summary_stats.R
+cat toy_project/code/make_summary_stats.R
 ```
 
-The `output/summ_stats.RData` object is `load`'ed into `R` by `report.Rmd` to obtain the in-line-referenced summary statistics. Note that the `R` script sources in the contents of `R/good_round.R`. I will leave it to the reader to explore the contents of that file. This step is included in this tutorial to mimic how one might bring in more general outside functions.[efn_note] Power users should consider the benefits of including a project-specific `R` package to formalize the documentation of such functions. You can see in `R/good_round.R` I am including [`roxygen2`](https://roxygen2.r-lib.org/)-style documentation, anticipating that this function may eventually be moved into a package.[/efn_note]
+The `output/summ_stats.RData` object is `load`'ed into `R` by `report.Rmd` to obtain the in-line-referenced summary statistics. Note that the `R` script sources in the contents of `code/good_round.R`. I will leave it to the reader to explore the contents of that file. This step is included in this tutorial to mimic how one might bring in more general outside functions.[efn_note] Power users should consider the benefits of including a project-specific `R` package to formalize the documentation of such functions. You can see in `code/good_round.R` I am including [`roxygen2`](https://roxygen2.r-lib.org/)-style documentation, anticipating that this function may eventually be moved into a package.[/efn_note]
 
 A rule is given for making the `summ_stats` object. 
 
@@ -277,10 +279,10 @@ sed -n '12,16p' toy_project/Makefile
 
 #### Making figures
 
-Similarly, we clean data in hand, we can `make` the figures needed by the report. The first figure is a simple scatter plot created by `R/make_fig1.R`
+Similarly, we clean data in hand, we can `make` the figures needed by the report. The first figure is a simple scatter plot created by `code/make_fig1.R`
 
 ```{bash, cat-make-fig1, echo = FALSE, comment = ""}
-cat toy_project/R/make_fig1.R
+cat toy_project/code/make_fig1.R
 ```
 
 The `make` rule should look familiar by now.
@@ -298,3 +300,5 @@ I hope this has done something to convince you that being organized is worth cli
 I would be glad to hear from you with your own tips and tricks for organization. Leave a comment below or give me a shout on Twitter [\@biosbenk](https://twitter.com/biosbenk).
 
 Wishing all of you the best of luck in all your future reproducible endeavors. 
+
+#### Footnotes
