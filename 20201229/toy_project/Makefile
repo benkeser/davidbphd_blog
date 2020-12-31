@@ -29,7 +29,7 @@ figs: figs/fig1.png figs/fig2.png
 
 ## clean                     : removes all contents of output/ and figs/
 clean:
-	rm output/* figs/*
+	rm clean_data/* figs/* output/*
 
 help: Makefile
 	@sed -n 's/^##//p' $<

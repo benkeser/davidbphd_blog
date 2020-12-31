@@ -355,7 +355,6 @@ The contents of the project directory are shown below.
     ├── .here
     ├── Makefile
     ├── clean_data
-    │   └── clean_data.txt
     ├── code
     │   ├── good_round.R
     │   ├── make_clean_data.R
@@ -370,7 +369,7 @@ The contents of the project directory are shown below.
         ├── biomarkers.txt
         └── clinical.txt
     
-    5 directories, 12 files
+    5 directories, 11 files
 
   - `Makefile` describes all the dependencies of output created in my
     analysis.
@@ -409,7 +408,7 @@ We see that the `report` depends on the source file `code/report.Rmd` as
 well as some files in the `output` folder that have not yet been
 created. Looking further down the `Makefile`, we see that these files
 have their own `make` rules. The rule to `make` the `report` itself,
-stipulates changing into the `R` directory \[efn\_note\]This step is
+stipulates changing into the `code` directory\[efn\_note\]This step is
 needed because R Markdown apparently likes to render documents in an R
 session with working directory set to the the directory where the `.Rmd`
 file lives.\[/efn\_note\] and executing the `make_report.R` script,
@@ -548,7 +547,7 @@ data files.
 
 In order to keep the `report.Rmd` clean, summary statistics needed for
 the report are computed and a `list` containing those statistics is
-saved in the `code/make_summary_stats.R` script.
+saved in `output` by `code/make_summary_stats.R` script.
 
     # get summary statistics needed for the report
     # saves file output/summ_stats.RData

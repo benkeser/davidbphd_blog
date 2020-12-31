@@ -202,7 +202,7 @@ We'll orient ourselves to this project by starting at the end -- we want to unde
 cat toy_project/Makefile | head -5
 ```
 
-We see that the `report` depends on the source file `code/report.Rmd` as well as some files in the `output` folder that have not yet been created. Looking further down the `Makefile`, we see that these files have their own `make` rules. The rule to `make` the `report` itself, stipulates changing into the `R` directory [efn_note]This step is needed because R Markdown apparently likes to render documents in an R session with working directory set to the the directory where the `.Rmd` file lives.[/efn_note] and executing the `make_report.R` script, shown below. 
+We see that the `report` depends on the source file `code/report.Rmd` as well as some files in the `output` folder that have not yet been created. Looking further down the `Makefile`, we see that these files have their own `make` rules. The rule to `make` the `report` itself, stipulates changing into the `code` directory[efn_note]This step is needed because R Markdown apparently likes to render documents in an R session with working directory set to the the directory where the `.Rmd` file lives.[/efn_note] and executing the `make_report.R` script, shown below. 
 
 ```{bash, show-make-report-rmd, echo = FALSE, comment = ""}
 cat toy_project/code/make_report.R
@@ -263,7 +263,7 @@ As expected, based on `code/make_clean_data.R` shown above, the cleaned data set
 
 #### Obtaining summary statistics
 
-In order to keep the `report.Rmd` clean, summary statistics needed for the report are computed and a `list` containing those statistics is saved in the `code/make_summary_stats.R` script.
+In order to keep the `report.Rmd` clean, summary statistics needed for the report are computed and a `list` containing those statistics is saved in `output` by `code/make_summary_stats.R` script.
 
 ```{bash, cat-make-summary-stat, echo = FALSE, comment = ""}
 cat toy_project/code/make_summary_stats.R
